@@ -18,9 +18,6 @@ $commands = array(
 				  //'git submodule status',
 );
 
-// If this is in the commit message, rebuild the book
-$special = '>build book<';
-
 // Run the commands for output
 $output = '';
 
@@ -29,19 +26,26 @@ foreach($commands AS $command){
 	// Run it
 	$tmp = shell_exec($command);
 	// Output
-	$output .= "<span style=\"color: #6BE234;\">\$</span> <span style=\"color: #729FCF;\">{$command}\n</span>";
+	$output .= '<span style="color: #6BE234;">\$</span> <span style="color: #729FCF;">{' . $command . '}\n</span>';
 	$output .= htmlentities(trim($tmp)) . "\n";
 }
 
-/* Has the special command been invoked? */
+/* Has a special command been invoked? */
 
 $tmp = shell_exec('git log -1');
-if (stripos($tmp, $special) !== false) {
-	$ouput .= "Rebuild Book";
+if (preg_match("/\>\>([a-zA-Z0-9\-\_]+)\<\</", $tmp, $matches) > 0) {
+	
+	// check the file exists
+	if (file_exists($matches[1] . '.asc')) {
+		$command = 'asciidoctor -d book ' . $matches[1] . '.asc';
 
-	$tmp = shell_exec('asciidoctor -d book book.asc');
-	$output .= "<span style=\"color: #6BE234;\">\$</span> <span style=\"color: #729FCF;\">{asciidoctor}\n</span>";
-	$output .= htmlentities(trim($tmp)) . "\n";
+		$tmp = shell_exec($command);
+		$output .= '<span style="color: #6BE234;">\$</span> <span style="color: #729FCF;">{' . $command . '}\n</span>';
+		$output .= htmlentities(trim($tmp)) . "\n";
+	}
+	else {
+		$output .= '<span style="color: #FF0000;">File not found: ' . $matches[1] . '.asc</span>';
+	}
 }
 
 
