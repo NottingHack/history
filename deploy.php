@@ -33,7 +33,7 @@ foreach($commands AS $command){
 /* Has a special command been invoked? */
 
 $tmp = shell_exec('git log -1');
-if (preg_match("/\>\>([a-zA-Z0-9\-\_]+)\<\</", $tmp, $matches) > 0) {
+if (preg_match("/\>\>([a-zA-Z0-9\-\_\/]+)\<\</", $tmp, $matches) > 0) {
 	
 	// check the file exists
 	if (file_exists($matches[1] . '.asc')) {
